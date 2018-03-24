@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lanou.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.lanou.entity.User">
+    <id column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="enabled" jdbcType="INTEGER" property="enabled" />
+    <result column="usernamecn" jdbcType="VARCHAR" property="usernamecn" />
+  </resultMap>
+  <resultMap id="userInfoWithAuthorities" type="com.lanou.entity.User" extends="BaseResultMap">
+  	<collection ofType="com.lanou.entity.Authority" property="authorities">
+  		<result column="au_username" property="username"/>
+  		<result column="authority" property="authority"/>
+  	</collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    users.username, users.password, users.enabled, users.usernamecn
+  </sql>
+  <sql id="Authority_Column_List">
+  	authorities.username as au_username, authorities.authority
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="userInfoWithAuthorities">
+    select 
+    <include refid="Base_Column_List" /> ,
+    <include refid="Authority_Column_List" />
+    from users left join authorities on users.username = authorities.username
+    where users.username = #{username,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from users
+    where username = #{username,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.lanou.entity.User">
+    insert into users (username, password, enabled, 
+      usernamecn)
+    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{enabled,jdbcType=INTEGER}, 
+      #{usernamecn,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lanou.entity.User">
+    insert into users
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="enabled != null">
+        enabled,
+      </if>
+      <if test="usernamecn != null">
+        usernamecn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="enabled != null">
+        #{enabled,jdbcType=INTEGER},
+      </if>
+      <if test="usernamecn != null">
+        #{usernamecn,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lanou.entity.User">
+    update users
+    <set>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="enabled != null">
+        enabled = #{enabled,jdbcType=INTEGER},
+      </if>
+      <if test="usernamecn != null">
+        usernamecn = #{usernamecn,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where username = #{username,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lanou.entity.User">
+    update users
+    set password = #{password,jdbcType=VARCHAR},
+      enabled = #{enabled,jdbcType=INTEGER},
+      usernamecn = #{usernamecn,jdbcType=VARCHAR}
+    where username = #{username,jdbcType=VARCHAR}
+  </update>
+</mapper>
